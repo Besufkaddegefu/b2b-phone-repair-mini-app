@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+.vercel/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Accidental nested copies (not part of the mini-app)
+/app/
+/alembic/
+/backend/
+/mini-app/
+/tests/
+/web-portal/
+/.kilo/
+__pycache__/
+main.py
+run_bot.py
+requirements.txt
+pyproject.toml
+alembic.ini
+Dockerfile
+docker-compose.yml
