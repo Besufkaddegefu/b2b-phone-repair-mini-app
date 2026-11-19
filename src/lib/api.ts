@@ -1,5 +1,14 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios'
-import type { ApiError } from '@/types'
+import type {
+  ApiError,
+  User,
+  Subscription,
+  Transaction,
+  Category,
+  PartListing,
+  PartListingSearchParams,
+  PaginatedResponse,
+} from '@/types'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1'
 

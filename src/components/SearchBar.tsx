@@ -4,13 +4,13 @@ import { useCategories } from '@/hooks'
 import { cn } from '@/lib/utils'
 
 export function SearchBar() {
-  const { searchParams, search, clearSearch } = useStore()
+  const { searchParams, setSearchParams, resetSearchParams } = useStore()
   const { categories } = useCategories()
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget as HTMLFormElement)
-    search({
+    setSearchParams({
       model_name: formData.get('model') as string || undefined,
     })
   }
@@ -31,7 +31,7 @@ export function SearchBar() {
         {searchParams.model_name && (
           <button
             type="button"
-            onClick={() => clearSearch()}
+            onClick={() => resetSearchParams()}
             className="p-2 text-gray-400 hover:text-gray-600"
             aria-label="Clear search"
           >
@@ -44,7 +44,7 @@ export function SearchBar() {
 }
 
 export function CategoryFilter() {
-  const { searchParams, search } = useStore()
+  const { searchParams, setSearchParams } = useStore()
   const { categories } = useCategories()
 
   return (
@@ -56,7 +56,7 @@ export function CategoryFilter() {
             ? 'bg-primary-600 text-white'
             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
         )}
-        onClick={() => search({ category_id: undefined })}
+        onClick={() => setSearchParams({ category_id: undefined })}
       >
         All
       </button>
@@ -69,7 +69,7 @@ export function CategoryFilter() {
               ? 'bg-primary-600 text-white'
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           )}
-          onClick={() => search({ category_id: cat.id })}
+          onClick={() => setSearchParams({ category_id: cat.id })}
         >
           {cat.name}
         </button>
@@ -79,13 +79,13 @@ export function CategoryFilter() {
 }
 
 export function BrandFilter() {
-  const { searchParams, search } = useStore()
+  const { searchParams, setSearchParams } = useStore()
   const brands = ['Samsung', 'Apple', 'Xiaomi', 'Tecno', 'Infinix', 'Huawei', 'Oppo', 'Vivo', 'Nokia']
 
   return (
     <select
       value={searchParams.brand || ''}
-      onChange={(e) => search({ brand: e.target.value || undefined })}
+      onChange={(e) => setSearchParams({ brand: e.target.value || undefined })}
       className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
     >
       <option value="">All Brands</option>

@@ -1,8 +1,3 @@
-import { init as initBridge, signalWebAppReady } from '@telegram-apps/bridge'
-import { init as initSDK, isTMA } from '@telegram-apps/sdk'
-import { retrieveLaunchParams } from '@telegram-apps/bridge'
-import type { InitData } from '@telegram-apps/bridge'
-
 export interface TelegramUser {
   id: number
   first_name: string
@@ -29,6 +24,11 @@ let initDataRaw: string | null = null
 let initDataParsed: TelegramInitData | null = null
 let user: TelegramUser | null = null
 
+function getWebApp() {
+  if (typeof window === 'undefined') return null
+  return window.Telegram?.WebApp ?? null
+}
+
 export function getInitDataRaw(): string | null {
   return initDataRaw
 }
@@ -42,22 +42,17 @@ export function getTelegramUser(): TelegramUser | null {
 }
 
 export function isTelegramMiniApp(): boolean {
-  return isTMA()
+  return !!getWebApp()?.initData
 }
 
 export async function initTelegram(): Promise<void> {
-  if (typeof window === 'undefined') return
+  const webApp = getWebApp()
+  if (!webApp) return
 
   try {
-    // Initialize bridge first
-    await initBridge()
-
-    // Retrieve launch params (contains initData)
-    const launchParams = retrieveLaunchParams()
-    initDataRaw = launchParams.tgWebAppData || null
+    initDataRaw = webApp.initData || null
 
     if (initDataRaw) {
-      // Parse initData
       const params = new URLSearchParams(initDataRaw)
       const userParam = params.get('user')
       if (userParam) {
@@ -68,7 +63,6 @@ export async function initTelegram(): Promise<void> {
         }
       }
 
-      // Parse full initData
       initDataParsed = {
         query_id: params.get('query_id') || undefined,
         user: user || undefined,
@@ -77,17 +71,8 @@ export async function initTelegram(): Promise<void> {
       }
     }
 
-    // Initialize SDK
-    await initSDK()
-
-    // Signal ready
-    signalWebAppReady()
-
-    // Set viewport
-    if (window.Telegram?.WebApp) {
-      window.Telegram.WebApp.ready()
-      window.Telegram.WebApp.expand()
-    }
+    webApp.ready()
+    webApp.expand()
 
     console.log('Telegram Mini App initialized', { user, hasInitData: !!initDataRaw })
   } catch (error) {
@@ -95,45 +80,36 @@ export async function initTelegram(): Promise<void> {
   }
 }
 
-export function validateInitData(botToken: string): boolean {
+export function validateInitData(_botToken: string): boolean {
   if (!initDataRaw || !initDataParsed) return false
-
-  // This is a simplified validation - in production, use proper HMAC-SHA256 verification
-  // The backend should do the actual validation
+  // Simplified client-side check; the backend performs real HMAC verification.
   return true
 }
 
 export function getThemeParams() {
-  if (typeof window === 'undefined' || !window.Telegram?.WebApp) return null
-  return window.Telegram.WebApp.themeParams
+  return getWebApp()?.themeParams ?? null
 }
 
 export function setHeaderColor(color: string) {
-  if (typeof window === 'undefined' || !window.Telegram?.WebApp) return
-  window.Telegram.WebApp.setHeaderColor(color)
+  getWebApp()?.setHeaderColor(color)
 }
 
 export function setBackgroundColor(color: string) {
-  if (typeof window === 'undefined' || !window.Telegram?.WebApp) return
-  window.Telegram.WebApp.setBackgroundColor(color)
+  getWebApp()?.setBackgroundColor(color)
 }
 
 export function hapticFeedback(type: 'light' | 'medium' | 'heavy' | 'success' | 'error' | 'warning') {
-  if (typeof window === 'undefined' || !window.Telegram?.WebApp?.HapticFeedback) return
-  window.Telegram.WebApp.HapticFeedback.impactOccurred(type)
+  getWebApp()?.HapticFeedback?.impactOccurred(type)
 }
 
 export function closeApp() {
-  if (typeof window === 'undefined' || !window.Telegram?.WebApp) return
-  window.Telegram.WebApp.close()
+  getWebApp()?.close()
 }
 
 export function openTelegramLink(url: string) {
-  if (typeof window === 'undefined' || !window.Telegram?.WebApp) return
-  window.Telegram.WebApp.openTelegramLink(url)
+  getWebApp()?.openTelegramLink(url)
 }
 
 export function openLink(url: string) {
-  if (typeof window === 'undefined' || !window.Telegram?.WebApp) return
-  window.Telegram.WebApp.openLink(url)
+  getWebApp()?.openLink(url)
 }
